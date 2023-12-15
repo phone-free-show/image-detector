@@ -1,6 +1,8 @@
 package show.dnddetector
 
 import java.awt.Image
+import java.awt.Point
+import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.image.BufferedImage
 import java.awt.image.FilteredImageSource
