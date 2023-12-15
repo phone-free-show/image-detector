@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class DndDetectorApplication
 
 fun main(args: Array<String>) {
-	runApplication<DndDetectorApplication>(*args)
+    runApplication<DndDetectorApplication>(*args)
 }
