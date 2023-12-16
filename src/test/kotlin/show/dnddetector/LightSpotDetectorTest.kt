@@ -17,7 +17,7 @@ class LightSpotDetectorTest {
         val input = Util.getLocalResource("./phone-1-images.jpeg")
         val taker = LightSpotDetector()
         assertNotNull(input)
-        val n = taker.detect(input)
+        val n = taker.detect(input, outputFileName = "target/phone-out-images.jpeg")
         assertEquals(2, n.size)
     }
 }

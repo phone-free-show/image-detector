@@ -17,7 +17,7 @@ class LightSpotDetector {
     init {
         OpenCV.loadLocally()
     }
-    fun detect(input: InputStream):List<MatOfPoint> {
+    fun detect(input: InputStream, minContourArea:Double = 4.0, outputFileName: String? = null):List<MatOfPoint> {
         // Load the image
 
         val inputImage: Mat = readInputStreamIntoMat(input)
@@ -32,14 +32,7 @@ class LightSpotDetector {
         Imgproc.findContours(binaryImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
 
         // Filter contours based on area (optional)
-        val minContourArea = 4
-        val filteredContours: MutableList<MatOfPoint> = ArrayList<MatOfPoint>()
-        for (contour in contours) {
-            val area: Double = Imgproc.contourArea(contour)
-            if (area > minContourArea) {
-                filteredContours.add(contour)
-            }
-        }
+        val filteredContours= contours.filter { contour -> Imgproc.contourArea(contour) > minContourArea }
 
 
         // Draw contours on the original image
@@ -48,8 +41,7 @@ class LightSpotDetector {
 //        Imgproc.drawContours(resultImage, filteredContours, -1, Scalar(0.0, 0.0, 255.0), -1)
 
         // Display or save the result
-        val result = Imgcodecs.imwrite("target/phone-out-images.jpeg", resultImage)
-        System.out.println("!!!!!!!!!!!!!!!!!!! result=$result")
+        outputFileName.let {  Imgcodecs.imwrite(outputFileName, resultImage) }
         return filteredContours
     }
 
