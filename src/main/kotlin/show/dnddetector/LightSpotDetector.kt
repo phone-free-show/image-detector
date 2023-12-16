@@ -1,11 +1,7 @@
 package show.dnddetector
 
 import nu.pattern.OpenCV
-import org.opencv.core.CvType
-import org.opencv.core.Mat
-import org.opencv.core.MatOfByte
-import org.opencv.core.MatOfPoint
-import org.opencv.core.Scalar
+import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
@@ -17,10 +13,16 @@ class LightSpotDetector {
     init {
         OpenCV.loadLocally()
     }
-    fun detect(input: InputStream, minContourArea:Double = 4.0, outputFileName: String? = null):List<MatOfPoint> {
+
+    fun detect(
+        input: InputStream,
+        inputSize: Int,
+        minContourArea: Double = 4.0,
+        outputFileName: String? = null
+    ): List<MatOfPoint> {
         // Load the image
 
-        val inputImage: Mat = readInputStreamIntoMat(input)
+        val inputImage: Mat = readInputStreamIntoMat(input, inputSize)
 
         // Apply thresholding
         val binaryImage: Mat = Mat()
@@ -32,7 +34,7 @@ class LightSpotDetector {
         Imgproc.findContours(binaryImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
 
         // Filter contours based on area (optional)
-        val filteredContours= contours.filter { contour -> Imgproc.contourArea(contour) > minContourArea }
+        val filteredContours = contours.filter { contour -> Imgproc.contourArea(contour) > minContourArea }
 
 
         // Draw contours on the original image
@@ -41,31 +43,30 @@ class LightSpotDetector {
 //        Imgproc.drawContours(resultImage, filteredContours, -1, Scalar(0.0, 0.0, 255.0), -1)
 
         // Display or save the result
-        outputFileName.let {  Imgcodecs.imwrite(outputFileName, resultImage) }
+        outputFileName.let { Imgcodecs.imwrite(outputFileName, resultImage) }
         return filteredContours
     }
 
-    private fun readStream(stream: InputStream): ByteArray {
+    private fun readStream(stream: InputStream, size: Int): ByteArray {
         // Copy content of the image to byte-array
-        val buffer = ByteArrayOutputStream()
+        val buffer = ByteArrayOutputStream(size)
         var nRead: Int
         val data = ByteArray(16384)
 
         while ((stream.read(data, 0, data.size).also { nRead = it }) != -1) {
             buffer.write(data, 0, nRead)
         }
-
-        buffer.flush()
-        val temporaryImageInMemory = buffer.toByteArray()
-        buffer.close()
-        stream.close()
-        return temporaryImageInMemory
+        return buffer.toByteArray()
     }
 
     @Throws(IOException::class)
-    private fun readInputStreamIntoMat(inputStream: InputStream, kind: Int = Imgcodecs.IMREAD_GRAYSCALE): Mat {
+    private fun readInputStreamIntoMat(
+        inputStream: InputStream,
+        size: Int,
+        kind: Int = Imgcodecs.IMREAD_GRAYSCALE
+    ): Mat {
         // Read into byte-array
-        val temporaryImageInMemory = readStream(inputStream)
+        val temporaryImageInMemory = readStream(inputStream, size)
 
         // Decode into mat. Use any IMREAD_ option that describes your image appropriately
         val outputImage: Mat = Imgcodecs.imdecode(MatOfByte(*temporaryImageInMemory), kind)
