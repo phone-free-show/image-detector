@@ -42,7 +42,7 @@ class LightSpotDetector {
         Imgproc.drawContours(resultImage, contours, -1, Scalar(0.0, 0.0, 255.0), -1)
 //        Imgproc.drawContours(resultImage, filteredContours, -1, Scalar(0.0, 0.0, 255.0), -1)
 
-        // Display or save the result
+        // Display or save the result if configured for testing
         outputFileName.let { Imgcodecs.imwrite(outputFileName, resultImage) }
         return filteredContours
     }
